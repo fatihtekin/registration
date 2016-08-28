@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.gamesys.controller.RegistrationRequest;
+import com.gamesys.model.Registration;
 
-public class RegistrationTest {
+public  abstract class RegistrationTest {
 
     protected final static String SUCCESS_RESPONSE = "{\"messages\":[\"Successfully registered\"],\"status\":\"SUCCESS\"}";
     
@@ -29,8 +29,8 @@ public class RegistrationTest {
         }
     }
     
-    protected RegistrationRequest createRegistrationRequest() {
-        RegistrationRequest registrationRequest = new RegistrationRequest();
+    protected Registration createRegistrationRequest() {
+        Registration registrationRequest = new Registration();
         registrationRequest.setDateOfBirth("1988-11-11");
         registrationRequest.setPassword("Tr12");
         registrationRequest.setSsn("786-45-2345");
@@ -38,8 +38,8 @@ public class RegistrationTest {
         return registrationRequest;
     }
 
-    protected RegistrationRequest createInValidRequest() {
-        RegistrationRequest registrationRequest = new RegistrationRequest();
+    protected Registration createInValidRequest() {
+        Registration registrationRequest = new Registration();
         registrationRequest.setDateOfBirth("198-11-11");
         registrationRequest.setPassword("ar12");
         registrationRequest.setSsn("786-45-345");
@@ -47,8 +47,8 @@ public class RegistrationTest {
         return registrationRequest;
     }
     
-    protected RegistrationRequest createBlackListedRegistrationRequest() {
-        RegistrationRequest registrationRequest = new RegistrationRequest();
+    protected Registration createBlackListedRegistrationRequest() {
+        Registration registrationRequest = new Registration();
         registrationRequest.setDateOfBirth("1988-11-11");
         registrationRequest.setPassword("Tr12");
         registrationRequest.setSsn("786-45-0130");

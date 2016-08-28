@@ -14,14 +14,12 @@ public class ExclusionServiceImpl implements ExclusionService{
             return false;
         }
 
-        Integer day = Integer.valueOf(dob.substring(8,10));
-        Integer last4digitsOfSSN = Integer.valueOf(ssn.substring(7,11)); 
+        final boolean isDayofDOBOddNumber = Integer.valueOf(dob.substring(8,10))%2 == 1;
+        final boolean islast4digitsOfSSNDivisibleBy13 = Integer.valueOf(ssn.substring(7,11))%13 == 0; 
         
-        if(day % 2 == 1 && last4digitsOfSSN %13 == 0){
-            return false;
-        }
+        final boolean isBlackListed = isDayofDOBOddNumber && islast4digitsOfSSNDivisibleBy13;
         
-        return true;
+        return !isBlackListed;
     }
 
 }

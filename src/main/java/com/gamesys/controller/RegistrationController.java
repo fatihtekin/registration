@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gamesys.controller.Response.Status;
+import com.gamesys.model.Registration;
+import com.gamesys.model.Response;
+import com.gamesys.model.Response.Status;
 import com.gamesys.service.ExclusionService;
 
 
@@ -36,63 +38,69 @@ public class RegistrationController{
     public static final String USER_IS_IN_BLACKLIST = "User is in blacklist";
     public static final String SUCCESSFULLY_REGISTERED = "Successfully registered";
 
-    private final ConcurrentHashMap<String,Boolean> registeredUsers = new ConcurrentHashMap<>();    
+    private final ConcurrentHashMap<String,Registration> registeredUsers = new ConcurrentHashMap<>();    
 
     @Autowired ExclusionService exclusionService;
 
-    
     /**
      * Having the request parameters in the HTTP Request-Body looked more simple and more proper for POST method. 
      */
     @PostMapping(value = "/register",
             produces = {MediaType.APPLICATION_JSON_UTF8_VALUE},
             consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public Response register(@Valid @NotNull @RequestBody final RegistrationRequest registrationRequest,BindingResult error) {
+    public Response register(@Valid @NotNull @RequestBody final Registration registration,final BindingResult error) {
 
-        final LocalDate dob;
-        
-        try {            
-            dob = LocalDate.parse(registrationRequest.getDateOfBirth());
-        } catch (DateTimeParseException e) {
-            throw new RegistrationServiceException(DATE_OF_BIRTH_IS_NOT_VALID);
-        }
-        
-        if(!dob.isBefore(LocalDate.now())){
-            throw new RegistrationServiceException(DATE_OF_BIRTH_MUST_BE_IN_THE_PAST);
-        }
-
-        if(registeredUsers.containsKey(registrationRequest.getUsername())){
-            throw new RegistrationServiceException(USER_ALREADY_REGISTERED);
-        }
-
-        if(!exclusionService.validate(registrationRequest.getDateOfBirth(), registrationRequest.getSsn())){
-            throw new RegistrationServiceException(USER_IS_IN_BLACKLIST);
-        }
-
-        registeredUsers.put(registrationRequest.getUsername(), Boolean.TRUE);
+        validateRequest(registration);
+        registeredUsers.put(registration.getUsername(), registration);
         return new Response(Status.SUCCESS,SUCCESSFULLY_REGISTERED);
     }
 
 
-    @ExceptionHandler(value = { RegistrationServiceException.class})
+    protected void validateRequest(final Registration registration) {
+        final LocalDate dob;
+        
+        try {            
+            dob = LocalDate.parse(registration.getDateOfBirth());
+        } catch (DateTimeParseException e) {
+            throw new RegistrationServiceValidationException(DATE_OF_BIRTH_IS_NOT_VALID,e);
+        }
+        
+        if(!dob.isBefore(LocalDate.now())){
+            throw new RegistrationServiceValidationException(DATE_OF_BIRTH_MUST_BE_IN_THE_PAST);
+        }
+
+        if(registeredUsers.containsKey(registration.getUsername())){
+            throw new RegistrationServiceValidationException(USER_ALREADY_REGISTERED);
+        }
+
+        if(!exclusionService.validate(registration.getDateOfBirth(), registration.getSsn())){
+            throw new RegistrationServiceValidationException(USER_IS_IN_BLACKLIST);
+        }
+    }
+
+    public Registration getRegisteredUser(final String username){
+        return registeredUsers.get(username);
+    }
+
+    @ExceptionHandler(value = { RegistrationServiceValidationException.class})
     @ResponseStatus(value = BAD_REQUEST)
-    public Response handleRegistrationServiceException(final RegistrationServiceException re) {
-        return new Response(Status.ERROR,re.getMessage());
+    public Response handleRegistrationServiceException(final RegistrationServiceValidationException validationException) {
+        return new Response(Status.ERROR,validationException.getMessage());
     }
 
     @ExceptionHandler(value = {HttpMessageNotReadableException.class})
     @ResponseStatus(value = BAD_REQUEST)
-    public Response handleBedOrEmptyRequestBodyException(final HttpMessageNotReadableException httpe) {
-        return new Response(Status.ERROR,httpe.getMessage());
+    public Response handleBedOrEmptyRequestBodyException(final HttpMessageNotReadableException httpMessageNotReadableException) {
+        return new Response(Status.ERROR,"Request body is not in the correct format");
     }
     
     
     @ExceptionHandler(value = { ConstraintViolationException.class })
     @ResponseStatus(value = BAD_REQUEST)
-    public Response handleConstraintViolationException(final ConstraintViolationException e) {
+    public Response handleConstraintViolationException(final ConstraintViolationException constraintViolationException) {
 
         Response response = new Response(Status.ERROR);
-        for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
+        for (ConstraintViolation<?> violation : constraintViolationException.getConstraintViolations()) {
             response.getMessages().add(violation.getMessage());
         }
         return response;

@@ -21,12 +21,12 @@ public class WebInitializer implements WebApplicationInitializer {
 
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(final ServletContext servletContext) throws ServletException {
         
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.setConfigLocation("com.gamesys.*");
         servletContext.addListener(new ContextLoaderListener(context));
-        ServletRegistration.Dynamic dispatcherServlet = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
+        final ServletRegistration.Dynamic dispatcherServlet = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
         dispatcherServlet.setLoadOnStartup(1);
         dispatcherServlet.addMapping("/*");
         dispatcherServlet.setAsyncSupported(true);

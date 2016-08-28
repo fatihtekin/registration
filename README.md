@@ -15,3 +15,8 @@ then you can **POST** our requests to **[http://localhost:8080/register](http://
 ```
 
 **Note** : `Content-Type : application/json` needs to be added to the http headers
+
+Code coverage can be reported by below command under **${project.basedir}/target/site/cobertura/index.html**. Current coverage is **%81** 
+
+`mvn cobertura:cobertura`
+
