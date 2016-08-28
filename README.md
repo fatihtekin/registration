@@ -5,7 +5,7 @@ mvn clean install tomcat7:run
 then you can post our requests to url http://localhost:8080/register with below Json format
 
 
-
+```
 {
 
   "username" : "Test",
@@ -17,3 +17,4 @@ then you can post our requests to url http://localhost:8080/register with below 
   "ssn" : "786-45-1245"
   
 }
+```
