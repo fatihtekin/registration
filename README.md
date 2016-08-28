@@ -13,3 +13,5 @@ then you can **POST** our requests to **[http://localhost:8080/register](http://
   "ssn" : "786-45-1245"
 }
 ```
+
+**Note** : `Content-Type : application/json` needs to be added to the http headers
