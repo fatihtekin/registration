@@ -2,7 +2,7 @@ Run below command to execute the program at project main path
 
 `mvn clean install tomcat7:run`
 
-then you can post our requests to [url](http://localhost:8080/register)  with below Json format
+then you can **POST** our requests to **[http://localhost:8080/register](http://localhost:8080/register)**  with below Json format
 
 
 ```
